@@ -189,7 +189,7 @@ export const App = () =>  {
             <Box sx ={{
               fontWeight: 'bold',
               fontSize: {xs:'4rem', md: '6rem', lg:'8rem'},
-              width: '50%',
+              width: {xs: '100%', md:'50%'},
               textAlign: 'center'
             }}
             >
