@@ -37,13 +37,13 @@ export const App = () =>  {
   
   
   useEffect(()=>{
-    axios.get('http://127.0.0.1:275/api/getswims')
+    axios.get('https://yonderboy.pythonanywhere.com/api/getswims')
       .then(res => {
         setSwims(res.data)
       })
       .catch(err=>{})
       .finally({})
-    axios.get('http://127.0.0.1:275/api/toswim')
+    axios.get('https://yonderboy.pythonanywhere.com/api/toswim')
       .then(res => {
         setToSwim(res.data)
       })
@@ -120,7 +120,7 @@ export const App = () =>  {
   
   const handleSubmit = (e) => {
     e.preventDefault()
-    axios.post('http://127.0.0.1:275/api/addswim', data)
+    axios.post('https://yonderboy.pythonanywhere.com/api/addswim', data)
       .then(res => {
         setSwims(res.data)
       })
@@ -131,7 +131,7 @@ export const App = () =>  {
 
   const handleDelete = () => {
     if (window.confirm("Ganz sicher?")) {
-      axios.post('http://127.0.0.1:275/api/deleteswim', rowSelectionModel)
+      axios.post('https://yonderboy.pythonanywhere.com/api/deleteswim', rowSelectionModel)
       .then(res => {
         setSwims(res.data)
       })
