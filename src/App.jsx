@@ -17,7 +17,8 @@ import {convertToLocalTime} from 'date-fns-timezone';
 import {MapContainer, TileLayer, Polyline} from 'react-leaflet'
 import 'leaflet/dist/leaflet.css';
 
-
+// http://127.0.0.1:275
+// https://yonderboy.pythonanywhere.com/api/getswims
 
 export const App = () =>  {
 
@@ -185,7 +186,13 @@ export const App = () =>  {
               mt:15,
             }}
           >
-            <Box sx ={{fontWeight: 'bold',fontSize: '8rem'}}>
+            <Box sx ={{
+              fontWeight: 'bold',
+              fontSize: {xs:'4rem', md: '6rem', lg:'8rem'},
+              width: '50%',
+              textAlign: 'center'
+            }}
+            >
               <CountUp 
                 start={0} 
                 end={swimmedLength/1000} 
@@ -199,7 +206,7 @@ export const App = () =>  {
                 )}
               </CountUp>
             </Box>
-            <Box sx={{fontSize:'.9rem', ml:2}}>
+            <Box sx={{fontSize:'.9rem', ml:2, display:{ xs: 'none', lg: 'block' }}}>
               km geschwommen
             </Box>
           </Box>
@@ -207,17 +214,19 @@ export const App = () =>  {
           <form onSubmit={handleSubmit} >
             <Box
               sx={{
-                display: 'flex',
+                display:{xs: 'block', md:'flex'} ,
                 justifyContent: 'space-evenly',
                 mt:5,
               }}
             >
               <DatePicker 
+                sx={{width: {xs:'100%', md:'auto'}, mb: {xs:3, md:0}}}
                 label="Datum"
                 onChange={handleDatePickerChange}
                 required
                 />
               <TextField
+                sx={{width: {xs:'100%', md:'auto'}, mb: {xs:3, md:0}}}
                 type="number"
                 label="Strecke in m"
                 name="strecke"
@@ -228,13 +237,15 @@ export const App = () =>  {
                   }
                 }}
                 onChange={(e) => handleInputChange(e)}
-              />
+                />
               <TextField
+                sx={{width: {xs:'100%', md:'auto'}, mb: {xs:3, md:0}}}
                 label="Dolphin"
                 name="dolphin"
                 onChange={(e) => handleInputChange(e)}
-              />
+                />
               <TextField
+                sx={{width: {xs:'100%', md:'auto'}, mb: {xs:3, md:0}}}
                 label="Etappe"
                 name="etappe"
                 onChange={(e) => handleInputChange(e)}
