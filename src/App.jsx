@@ -38,8 +38,7 @@ export const App = () =>  {
   
   
   useEffect(()=>{
-    console.log(process.env)
-    axios.get('http://127.0.0.1:275/api/getswims', {
+    axios.get(`${process.env.REACT_APP_API_URL}/api/getswims`, {
       auth: {
         username: process.env.REACT_APP_API_UNAME,
         password: process.env.REACT_APP_API_PASS
@@ -50,7 +49,12 @@ export const App = () =>  {
       })
       .catch(err=>{})
       .finally({})
-    axios.get('http://127.0.0.1:275/api/toswim')
+    axios.get(`${process.env.REACT_APP_API_URL}/api/toswim`, {
+      auth: {
+        username: process.env.REACT_APP_API_UNAME,
+        password: process.env.REACT_APP_API_PASS
+        }
+      })
       .then(res => {
         setToSwim(res.data)
       })
@@ -127,7 +131,12 @@ export const App = () =>  {
   
   const handleSubmit = (e) => {
     e.preventDefault()
-    axios.post('http://127.0.0.1:275/api/addswim', data)
+    axios.post(`${process.env.REACT_APP_API_URL}/api/addswim`, data, {
+      auth: {
+        username: process.env.REACT_APP_API_UNAME,
+        password: process.env.REACT_APP_API_PASS
+        }
+      })
       .then(res => {
         setSwims(res.data)
       })
@@ -138,7 +147,12 @@ export const App = () =>  {
 
   const handleDelete = () => {
     if (window.confirm("Ganz sicher?")) {
-      axios.post('http://127.0.0.1:275/api/deleteswim', rowSelectionModel)
+      axios.post(`${process.env.REACT_APP_API_URL}/api/deleteswim`, rowSelectionModel, {
+        auth: {
+          username: process.env.REACT_APP_API_UNAME,
+          password: process.env.REACT_APP_API_PASS
+          }
+        })
       .then(res => {
         setSwims(res.data)
       })
