@@ -18,7 +18,7 @@ import {MapContainer, TileLayer, Polyline} from 'react-leaflet'
 import 'leaflet/dist/leaflet.css';
 
 // http://127.0.0.1:275
-// https://yonderboy.pythonanywhere.com/api/getswims
+// http://127.0.0.1:275/api/getswims
 
 export const App = () =>  {
 
@@ -38,13 +38,19 @@ export const App = () =>  {
   
   
   useEffect(()=>{
-    axios.get('https://yonderboy.pythonanywhere.com/api/getswims')
+    console.log(process.env)
+    axios.get('http://127.0.0.1:275/api/getswims', {
+      auth: {
+        username: process.env.REACT_APP_API_UNAME,
+        password: process.env.REACT_APP_API_PASS
+        }
+      })
       .then(res => {
         setSwims(res.data)
       })
       .catch(err=>{})
       .finally({})
-    axios.get('https://yonderboy.pythonanywhere.com/api/toswim')
+    axios.get('http://127.0.0.1:275/api/toswim')
       .then(res => {
         setToSwim(res.data)
       })
@@ -121,7 +127,7 @@ export const App = () =>  {
   
   const handleSubmit = (e) => {
     e.preventDefault()
-    axios.post('https://yonderboy.pythonanywhere.com/api/addswim', data)
+    axios.post('http://127.0.0.1:275/api/addswim', data)
       .then(res => {
         setSwims(res.data)
       })
@@ -132,7 +138,7 @@ export const App = () =>  {
 
   const handleDelete = () => {
     if (window.confirm("Ganz sicher?")) {
-      axios.post('https://yonderboy.pythonanywhere.com/api/deleteswim', rowSelectionModel)
+      axios.post('http://127.0.0.1:275/api/deleteswim', rowSelectionModel)
       .then(res => {
         setSwims(res.data)
       })
