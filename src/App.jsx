@@ -146,10 +146,10 @@ export const App = () =>  {
       .then(res => {
         setSwims(res.data)
         const updatedValue = {}
-        updatedValue['datum'] = '';
-        updatedValue['strecke'] = '';
-        updatedValue['dolphin'] = '';
-        updatedValue['etappe'] = '';
+        updatedValue['datum'] = ''
+        updatedValue['strecke'] = ''
+        updatedValue['dolphin'] = ''
+        updatedValue['etappe'] = ''
         setData(updatedValue)  
         
       })
@@ -215,7 +215,7 @@ export const App = () =>  {
       <Container maxWidth="lg">
         <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="de">
           
-          {loading &&
+         { loading &&
           
           <Box
           sx={{position: 'fixed', width:'100vw', height: '100%', overflow:'hidden',zIndex:9000, bottom:0, left:0, backgroundColor: 'rgba(255, 255, 255, 0.9)', backfaceVisibility: '30%'}}
@@ -231,11 +231,18 @@ export const App = () =>  {
           }
           
           <Box
+            sx={{display:'flex', justifyContent:'center',mt:10,}}
+          >
+            <img src={require('./images/reddolphins.webp')} alt="oge" style={{width: '7rem'}}/>
+
+          </Box>
+          
+          <Box
             sx={{
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
-              mt:15,
+              mt:2,
             }}
           >
             <Box sx ={{
@@ -418,8 +425,8 @@ export const App = () =>  {
 
 
           <MapContainer 
-            center={[51.505, -0.09]} 
-            zoom={4} 
+            center={[60.971506, -23.172093]} 
+            zoom={5} 
             scrollWheelZoom={false} 
             style={{ height: '700px', marginBottom:'10rem' }}
           >
@@ -427,7 +434,7 @@ export const App = () =>  {
               attribution='Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ, TomTom, Intermap, iPC, USGS, FAO, NPS, NRCAN, GeoBase, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), and the GIS User Community'
               url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}"
             />
-            <Polyline ref={toSwimRef} pathOptions={{color: 'black', weight:3}} positions={toSwim} />
+            <Polyline ref={toSwimRef} pathOptions={{color: 'darkgray', weight:3}} positions={toSwim} />
             <Polyline pathOptions={{color: 'red', weight:3}} positions={swum} />
           </MapContainer>
         
