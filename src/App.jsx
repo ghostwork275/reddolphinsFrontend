@@ -58,7 +58,7 @@ export const App = () =>  {
     axios.get('/.netlify/functions/token')
       .then(res => {
         setToken(res.data)
-        setIsLoggedIn( window.sessionStorage.getItem('token') == token ? true : false )
+        setIsLoggedIn( window.sessionStorage.getItem('token') === token ? true : false )
         
       })
   },[token])
