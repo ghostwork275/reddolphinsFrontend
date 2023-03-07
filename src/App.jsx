@@ -105,7 +105,7 @@ export const App = () =>  {
 
   const handleDatePickerChange = (date) => {
     const updatedValue = {}
-    updatedValue['datum'] = formatDate(date)
+    updatedValue['datum'] = date
     setData(d =>({...d, ...updatedValue}))
   }
 
@@ -141,8 +141,18 @@ export const App = () =>  {
   
   const handleSubmit = (e) => {
     e.preventDefault()
+    data['datum'] = formatDate(data['datum'])
     axios.post('/.netlify/functions/addSwim', data)
-      .then(res => setSwims(res.data))
+      .then(res => {
+        setSwims(res.data)
+        const updatedValue = {}
+        updatedValue['datum'] = '';
+        updatedValue['strecke'] = '';
+        updatedValue['dolphin'] = '';
+        updatedValue['etappe'] = '';
+        setData(updatedValue)  
+        
+      })
   }
   
   const handleLoginSubmit = (e) => {
@@ -272,6 +282,7 @@ export const App = () =>  {
                 label="Datum"
                 onChange={handleDatePickerChange}
                 required
+                value={data.datum}
                 />
               <TextField
                 sx={{width: {xs:'100%', md:'auto'}, mb: {xs:3, md:0}}}
@@ -279,6 +290,7 @@ export const App = () =>  {
                 label="Strecke in m"
                 name="strecke"
                 required
+                value={data.strecke}
                 InputProps={{
                   inputProps: { 
                     min: 0 
@@ -292,11 +304,13 @@ export const App = () =>  {
                 name="dolphin"
                 onChange={(e) => handleInputChange(e)}
                 required
+                value={data.dolphin}
               />
               <TextField
                 sx={{width: {xs:'100%', md:'auto'}, mb: {xs:3, md:0}}}
                 label="Etappe"
                 name="etappe"
+                value={data.etappe}
                 onChange={(e) => handleInputChange(e)}
               />
             </Box>
