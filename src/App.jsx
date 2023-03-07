@@ -149,7 +149,7 @@ export const App = () =>  {
     e.preventDefault()
     axios.post('/.netlify/functions/login', login)
       .then(res => {
-        if (res.data == 'OK') {
+        if (res.data === 'OK') {
           setIsLoggedIn(true)
           window.sessionStorage.setItem('token', token);
         }
