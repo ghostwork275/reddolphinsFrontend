@@ -1,5 +1,4 @@
 import {useState, useEffect, useRef} from 'react';
-import './App.css';
 import axios from 'axios'
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
@@ -11,56 +10,58 @@ import CountUp from 'react-countup';
 import Button from '@mui/material/Button'
 import SendIcon from '@mui/icons-material/Send'
 import DeleteIcon from '@mui/icons-material/Delete'
-import 'dayjs/locale/de';
 import {format} from 'date-fns';
 import {convertToLocalTime} from 'date-fns-timezone';
 import {MapContainer, TileLayer, Polyline} from 'react-leaflet'
+import CircularProgress from '@mui/material/CircularProgress';
+import 'dayjs/locale/de';
+import './App.css';
 import 'leaflet/dist/leaflet.css';
 
-// http://127.0.0.1:275
-// http://127.0.0.1:275/api/getswims
 
 export const App = () =>  {
 
+  const [loading, setLoading] = useState(true)
+  const [token, setToken] = useState('')
+  const [login, setLogin] = useState('')
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  
   const [swims, setSwims] = useState([])
   const [swimmedLength, setSwimmedLength] = useState(0)
   const [toSwim, setToSwim] = useState([])
   const [swum, setSwum] = useState([])
+  
+  const [rowSelectionModel, setRowSelectionModel] = useState([])
+  const toSwimRef = useRef([])
+  
   const [data, setData] = useState({
     datum:'',
     strecke:'',
     dolphin:'',
     etappe:'',
     })
-  const [rowSelectionModel, setRowSelectionModel] = useState([])
-  const toSwimRef = useRef([])
 
-  
-  
+
+  // get initial data from netlify funcs
+  // check if logged in
   useEffect(()=>{
-    axios.get(`${process.env.REACT_APP_API_URL}/api/getswims`, {
-      auth: {
-        username: process.env.REACT_APP_API_UNAME,
-        password: process.env.REACT_APP_API_PASS
-        }
-      })
+    axios.get('/.netlify/functions/getSwims')
       .then(res => {
         setSwims(res.data)
+        setLoading(false)
       })
-      .catch(err=>{})
-      .finally({})
-    axios.get(`${process.env.REACT_APP_API_URL}/api/toswim`, {
-      auth: {
-        username: process.env.REACT_APP_API_UNAME,
-        password: process.env.REACT_APP_API_PASS
-        }
-      })
+      axios.get('/.netlify/functions/toSwim')
       .then(res => {
         setToSwim(res.data)
       })
-      .catch(err=>{})
-      .finally({})
-    },[])
+    // set token  
+    axios.get('/.netlify/functions/token')
+      .then(res => {
+        setToken(res.data)
+        setIsLoggedIn( window.sessionStorage.getItem('token') == token ? true : false )
+        
+      })
+  },[token])
  
 
   useEffect(()=>{
@@ -108,6 +109,15 @@ export const App = () =>  {
     setData(d =>({...d, ...updatedValue}))
   }
 
+  const handleLoginInputChange = (e) => {
+    setLogin(e.target.value)
+  }
+
+  const logout = () => {
+    setIsLoggedIn(false)
+    window.sessionStorage.removeItem('token');
+  }
+
 
   /**
    * Format a date to a string
@@ -131,39 +141,36 @@ export const App = () =>  {
   
   const handleSubmit = (e) => {
     e.preventDefault()
-    axios.post(`${process.env.REACT_APP_API_URL}/api/addswim`, data, {
-      auth: {
-        username: process.env.REACT_APP_API_UNAME,
-        password: process.env.REACT_APP_API_PASS
+    axios.post('/.netlify/functions/addSwim', data)
+      .then(res => setSwims(res.data))
+  }
+  
+  const handleLoginSubmit = (e) => {
+    e.preventDefault()
+    axios.post('/.netlify/functions/login', login)
+      .then(res => {
+        if (res.data == 'OK') {
+          setIsLoggedIn(true)
+          window.sessionStorage.setItem('token', token);
         }
       })
-      .then(res => {
-        setSwims(res.data)
-      })
-      .catch(err=>{})
-      .finally({})
   }
-
 
   const handleDelete = () => {
     if (window.confirm("Ganz sicher?")) {
-      axios.post(`${process.env.REACT_APP_API_URL}/api/deleteswim`, rowSelectionModel, {
-        auth: {
-          username: process.env.REACT_APP_API_UNAME,
-          password: process.env.REACT_APP_API_PASS
-          }
-        })
-      .then(res => {
-        setSwims(res.data)
-      })
-      .catch(err=>{})
-      .finally({})
+      axios.post('.netlify/functions/deleteSwim', rowSelectionModel)
+        .then(res => setSwims(res.data))
     } else {
       setRowSelectionModel([])
     }
   }
+ 
+  const saveButtonDisabled = () => {
+    if (!data.dolphin || !data.datum || !data.strecke ) 
+      return true
+    return false
+  }
 
-  
   const columns = [
     { 
       field: 'datum', 
@@ -197,7 +204,22 @@ export const App = () =>  {
 
       <Container maxWidth="lg">
         <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="de">
+          
+          {loading &&
+          
+          <Box
+          sx={{position: 'fixed', width:'100vw', height: '100%', overflow:'hidden',zIndex:9000, bottom:0, left:0, backgroundColor: 'rgba(255, 255, 255, 0.9)', backfaceVisibility: '30%'}}
+          >
+            <Box
+              sx={{ position: 'absolute',left:'50%', top:'50%', transform: 'translate(-50%, -50%)', border: '1px solid white'}}
+            >
+              <CircularProgress />
+            </Box>
 
+          </Box>
+          
+          }
+          
           <Box
             sx={{
               display: 'flex',
@@ -231,6 +253,12 @@ export const App = () =>  {
             </Box>
           </Box>
           
+          { isLoggedIn
+
+          ?
+          
+          <>
+          
           <form onSubmit={handleSubmit} >
             <Box
               sx={{
@@ -263,7 +291,8 @@ export const App = () =>  {
                 label="Dolphin"
                 name="dolphin"
                 onChange={(e) => handleInputChange(e)}
-                />
+                required
+              />
               <TextField
                 sx={{width: {xs:'100%', md:'auto'}, mb: {xs:3, md:0}}}
                 label="Etappe"
@@ -271,21 +300,36 @@ export const App = () =>  {
                 onChange={(e) => handleInputChange(e)}
               />
             </Box>
-            <Box sx={{my:10, display: 'flex', justifyContent:'center'}} >
+            <Box sx={{display: 'flex', justifyContent: 'center'}}>
+            <Box sx={{my:10, justifyContent:'center'}} >
               <Button 
                 type="submit" 
                 variant="contained" 
                 size="large" 
                 endIcon={<SendIcon />} 
                 color="warning"
+                disabled={saveButtonDisabled()}
               >
                 Speichern
               </Button>
+              <Box 
+                onClick={()=>logout()}
+                sx={{
+                  cursor:'pointer', 
+                  mt:2, opacity: '.4', 
+                  textAlign: 'center', 
+                  '&:hover': {
+                    opacity: '1'
+                  }
+                }}
+              >
+                Logout
+              </Box>
+          </Box>
             </Box>
           </form>
-
           
-          {/* Table */}
+          
           <Box sx={{ mb:20, width: '100%' }}>
             <DataGrid
               autoHeight
@@ -316,6 +360,47 @@ export const App = () =>  {
             }
             </>
           </Box>
+
+          </>
+          
+          :
+
+          <>
+
+          <form onSubmit={handleLoginSubmit} >
+            <Box
+              sx={{
+                display:{xs: 'block', md:'flex'} ,
+                justifyContent: 'center',
+                my:5,
+              }}
+            >
+              <TextField
+                sx={{
+                  width: {xs:'100%', md:'auto'}, 
+                  mb: {xs:3, md:0}, 
+                  mr: 2
+                }}
+                label="Passwort"
+                name="login"
+                type="password"
+                autoComplete="login"
+                onChange={(e) => handleLoginInputChange(e)}
+              />
+              <Button 
+                type="submit" 
+                variant="contained" 
+                size="large" 
+                endIcon={<SendIcon />} 
+                color="warning"
+              >
+                Login
+              </Button>
+            </Box>
+          </form>
+          </>
+          
+          }
 
 
           <MapContainer 
