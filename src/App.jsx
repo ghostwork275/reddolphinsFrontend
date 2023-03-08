@@ -14,6 +14,7 @@ import {format} from 'date-fns';
 import {convertToLocalTime} from 'date-fns-timezone';
 import {MapContainer, TileLayer, Polyline} from 'react-leaflet'
 import CircularProgress from '@mui/material/CircularProgress';
+import {useCookies} from 'react-cookie';
 import 'dayjs/locale/de';
 import './App.css';
 import 'leaflet/dist/leaflet.css';
@@ -21,9 +22,12 @@ import 'leaflet/dist/leaflet.css';
 
 export const App = () =>  {
 
+  const [cookies, setCookie, removeCookie] = useCookies(['user']);
+
   const [loading, setLoading] = useState(true)
   const [token, setToken] = useState('')
   const [login, setLogin] = useState('')
+  const [loginFailedMsg, setLoginFailedMsg] = useState('')
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   
   const [swims, setSwims] = useState([])
@@ -54,12 +58,11 @@ export const App = () =>  {
       .then(res => {
         setToSwim(res.data)
       })
-    // set token  
+    // get token  
     axios.get('/.netlify/functions/token')
       .then(res => {
         setToken(res.data)
-        setIsLoggedIn( window.sessionStorage.getItem('token') === token ? true : false )
-        
+        setIsLoggedIn( cookies.Dolphin === token ? true : false )
       })
   },[token])
  
@@ -115,7 +118,7 @@ export const App = () =>  {
 
   const logout = () => {
     setIsLoggedIn(false)
-    window.sessionStorage.removeItem('token');
+    removeCookie('Dolphin');
   }
 
 
@@ -161,8 +164,14 @@ export const App = () =>  {
       .then(res => {
         if (res.data === 'OK') {
           setIsLoggedIn(true)
-          window.sessionStorage.setItem('token', token);
+          const expiringDate = new Date()
+          expiringDate.setDate(expiringDate.getDate() + 30) // cookie expires in 30 days
+          setCookie('Dolphin', token, { path: '/' , expires: expiringDate})
+          setLoginFailedMsg('')
         }
+      })
+      .catch(err => {
+        setLoginFailedMsg(`:/Nope (${err.response.data})`)
       })
   }
 
@@ -388,7 +397,7 @@ export const App = () =>  {
 
           <>
 
-          <form onSubmit={handleLoginSubmit} >
+          <form onSubmit={handleLoginSubmit} autoComplete="on">
             <Box
               sx={{
                 display:{xs: 'block', md:'flex'} ,
@@ -419,6 +428,17 @@ export const App = () =>  {
               </Button>
             </Box>
           </form>
+          
+          <Box sx={{
+            display:{xs: 'block', md:'flex'} ,
+            justifyContent: 'center',
+            my:5,
+            fontSize: '.9rem',
+            color: 'red'
+          }}>
+            {loginFailedMsg}
+          </Box>
+          
           </>
           
           }
