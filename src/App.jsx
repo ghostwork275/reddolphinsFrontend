@@ -64,7 +64,7 @@ export const App = () =>  {
         setToken(res.data)
         setIsLoggedIn( cookies.Dolphin === token ? true : false )
       })
-  },[token])
+  },[token, cookies.Dolphin])
  
 
   useEffect(()=>{
